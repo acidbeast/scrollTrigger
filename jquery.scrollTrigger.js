@@ -1,15 +1,17 @@
 (function($){
 
 
-	$.fn.scrollTrigger = function(options){
+	$.fn.scrollTrigger = function(data, options){
 
+
+
+		var version = "0.3";
 
 
 
 		/* Дефолтные настройки */
 		var options = $.extend({
-			on: undefined,
-			off: undefined
+			progress: 'total'
 		}, options || {});
 
 
@@ -17,19 +19,13 @@
 
 		/* Переменные */
 		var 
-			box = $(this),
+			box,
 			offset,
 			isArray = false,
 			trigger = true,
 			triggersArray = [];
 
 
-
-
-		/* Проверяет тип */
-		if(options.offset && $.isArray(options.offset) == true){
-			isArray = true;
-		}
 
 
 
@@ -39,33 +35,51 @@
 
 
 		/* Получает оффсет */
-		var getOffset = function(){
+		var getOffset = function(box, data){
 
 
 
-			/* Передан через options */
-			if(options.offset){
-				offset = options.offset;
+			/* Check offset in data */
+			if(data.offset){
+				if(data.offset instanceof Function){
+					return data.offset();
+				}
+				else {
+					return parseInt(data.offset);
+				}
 			}
 
-			else {
 
 
-				/* Не задан */
-				if(typeof(offset) == "undefined"){
-					offset = box.offset().top;
-				}
-
-
-				/* Задан в data-аттрибутах */
-				else{
- 					offset = box.data('offset');
-				}
-
+			/* Check offset in data-attributes */
+			else if (box.data('offset')) {
+				return box.data('offset');
 			}
+
+
+
+			/* Get offset of the box */
+			// else {
+			// 	return box.offset().top;
+			// }
+
 
 
 		}
+
+
+
+
+
+		/* Проверяет тип */
+		if(data && $.isArray(data) == true){
+			isArray = true;
+		}
+		else {
+			box = $(data.container);
+			offset = getOffset(box, data);
+		}
+
 
 
 
@@ -82,53 +96,51 @@
 
 
 
+
 			/* Если offset передан как массив */
 			if(isArray == true){
 
-				for(key in options.offset){
+
+
+				for(key in data){
 
 
 
 					/* Создает триггеры для каждого элемента массива */
 					if($.inArray(key, triggersArray) == -1){
-						triggersArray.push(false);
+						triggersArray.push(true);
 					}
 
 
 
 					/* Проверяет на наличие функции в offset */
-					var arrayOffset;
+					var inArrayBox = $(data[key].container);
+					var inArrayOffset = getOffset(inArrayBox, data[key]);
 
-					if(options.offset[key] instanceof Function){
-						arrayOffset = options.offset[key]();
-					}
-					else{
-						arrayOffset = options.offset[key];
-					}
 
 
 
 					/* Выполняет callback on для каждого элемента при соотвествующем оффсете */
-					if(offsetTop > arrayOffset && triggersArray[key] == true){
+					if(offsetTop > inArrayOffset && triggersArray[key] == true){
 						triggersArray[key] = false;
-						if(options.handlers[key].on instanceof Function){
-							options.handlers[key].on (box,offset);
+						if(data[key].on instanceof Function){
+							data[key].on(inArrayBox, inArrayOffset);
 						}
 					}
 
 
-
 					/* Выполняет callback off для каждого элемента при соотвествующем оффсете */					
-					else if(offsetTop < arrayOffset && triggersArray[key] == false) {
+					else if(offsetTop < inArrayOffset && triggersArray[key] == false) {
 						triggersArray[key] = true;
-						if(options.handlers[key].off instanceof Function){
-							options.handlers[key].off(box,offset);
+						if(data[key].off instanceof Function){
+							data[key].off(inArrayBox, inArrayOffset);
 						}
 					}
 
 
 
 				}
+
 
 
 			}
@@ -140,8 +152,8 @@
 				/* Выполняет callback on */
 				if(offsetTop > offset && trigger == true){
 					trigger = false;
-					if(options.on instanceof Function){
-						options.on(box,offset);
+					if(data.on instanceof Function){
+						data.on(box,offset);
 					}
 				}
 
@@ -150,16 +162,78 @@
 				/* Выполняет callback off */
 				else if(offsetTop < offset && trigger == false) {
 					trigger = true;
-					if(options.off instanceof Function){
-						options.off(box,offset);
+					if(data.off instanceof Function){
+						data.off(box,offset);
 					}
 				}
+
+
 
 			}
 
 
 
 		});
+
+
+
+
+		/* ############## */
+		/* Add properites */
+		/* ############## */
+
+
+		if(isArray == true) {
+
+
+			box = [];
+
+
+			for(key in data){
+				box.push({
+					container: $(data[key].container),
+					offset: data[key].offset,
+					on: function(){
+						data[key].on();
+					},
+					off: function(){
+						data[key].off();
+					}
+				});
+			}
+
+
+
+		}
+		else {
+
+
+			box.callback = {};
+
+
+
+			/* On callback property */
+			if(data.on instanceof Function){
+				box.callback.on = function(box, offset){
+					data.on(box,offset);
+				} 
+			}
+
+
+
+			/* Off callback property */
+			if(data.off instanceof Function){
+				box.callback.off = function(box, offset){
+					data.off(box,offset);
+				} 
+			}
+
+
+		}
+
+
+
+		return box;
 
 
 
