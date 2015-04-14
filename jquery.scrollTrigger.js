@@ -5,13 +5,13 @@
 
 
 
-		var version = "0.3";
+		var version = "0.4";
 
 
 
 		/* Дефолтные настройки */
 		var options = $.extend({
-			progress: 'total'
+			customEvents: ''
 		}, options || {});
 
 
@@ -87,7 +87,7 @@
 
 
 
-		$(window).scroll(function(){
+		$(document).on("ready touchmove scroll " + options.customEvents, function(){
 
 
 
