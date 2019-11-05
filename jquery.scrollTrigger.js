@@ -1,243 +1,126 @@
-(function($){
+(function ($) {
 
 
-	$.fn.scrollTrigger = function(data, options){
+  $.fn.scrollTrigger = function (options) {
 
 
+    /* Options */
+    var options = $.extend({
+      customEvents: ''
+    }, options || {});
 
-		var version = "0.4";
 
+    /* Instance */
+    var instance = {
+      version: '0.6',
+      triggered: false
+    };
 
 
-		/* Дефолтные настройки */
-		var options = $.extend({
-			customEvents: ''
-		}, options || {});
+    /* Variables */
+    var element = $(this);
 
 
+    /* Check Offset */
+    if (options.offset === undefined && element.length > 0) {
+      options.offset = element.offset().top;
+    }
 
 
-		/* Переменные */
-		var 
-			box,
-			offset,
-			isArray = false,
-			trigger = true,
-			triggersArray = [];
+    /* Throw Error if offset is undefined */
+    if (options.offset === undefined) {
+      throw new Error('scrollTrigger.js: please, define offset property in plugin initialization, or attach it to DOM element.');
+    }
 
 
+    /* Check Gap */
+    options.gap = !isNaN(parseInt(options.gap)) ? options.gap : 0;
 
 
+    function getOffset () {
+      var
+        value = options.offset instanceof Function ? options.offset() : parseInt(options.offset);
+      if (isNaN(parseInt(value))) {
+        throw new Error('scrollTrigger.js: offset value is NaN.');
+      }
+      return value - options.gap;
+    }
 
-		/* Функции */
 
+    function runCallback (callback, offset, triggered) {
+        if (Object.prototype.toString.call(triggered) === "[object Boolean]") {
+          instance.triggered = triggered;
+        }
+        if (callback instanceof Function) {
+          callback(instance, offset, options);
+        }
+        if (options.once === true) {
+          unbindEvent();
+        }
+    }
 
 
+    function runCallbackManually (callback) {
+      return function (changeState) {
+        var offsetTop = $(window).scrollTop();
+        var state = Object.prototype.toString.call(changeState) === "[object Boolean]" ? changeState : undefined;
+        runCallback(callback, offsetTop, state);
+      }
+    }
 
-		/* Получает оффсет */
-		var getOffset = function(box, data){
 
+    /* Instance 'on' property */
+    if (options.on instanceof Function) {
+      instance.on = function (changeState) {
+        runCallbackManually(options.on)(changeState);
+      }
+    }
 
 
-			/* Check offset in data */
-			if(data.offset){
-				if(data.offset instanceof Function){
-					return data.offset();
-				}
-				else {
-					return parseInt(data.offset);
-				}
-			}
+    /* Instance 'off' property */
+    if (options.off instanceof Function) {
+      instance.off = function (changeState) {
+        runCallbackManually(options.off)(changeState);
+      }
+    }
 
 
+    function eventHandler () {
 
-			/* Check offset in data-attributes */
-			else if (box.data('offset')) {
-				return box.data('offset');
-			}
 
+      /* Get window scrolltop */
+      var offsetTop = $(window).scrollTop();
+      var offset = getOffset();
 
 
-			/* Get offset of the box */
-			// else {
-			// 	return box.offset().top;
-			// }
+      /* Runs callback on */
+      if (offsetTop > offset && instance.triggered === false) {
+        runCallback(options.on, offsetTop, true);
+      }
 
 
+      /* Runs callback off */
+      else if (offsetTop < offset && instance.triggered === true) {
+        runCallback(options.off, offsetTop, false);
+      }
 
-		}
 
+    }
 
 
+    function unbindEvent () {
+      $(document).off('ready touchmove scroll ' + options.customEvents, eventHandler);
+    }
 
 
-		/* Проверяет тип */
-		if(data && $.isArray(data) == true){
-			isArray = true;
-		}
-		else {
-			box = $(data.container);
-			offset = getOffset(box, data);
-		}
+    /* Events bindings */
+    $(document).on('ready touchmove scroll ' + options.customEvents, eventHandler);
 
 
+    return instance;
 
 
-		/* Events */
-
-
-
-		$(document).on("ready touchmove scroll " + options.customEvents, function(){
-
-
-
-			/* Get window scrolltop */
-			offsetTop = $(window).scrollTop();
-
-
-
-
-			/* Если offset передан как массив */
-			if(isArray == true){
-
-
-
-				for(key in data){
-
-
-
-					/* Создает триггеры для каждого элемента массива */
-					if($.inArray(key, triggersArray) == -1){
-						triggersArray.push(true);
-					}
-
-
-
-					/* Проверяет на наличие функции в offset */
-					var inArrayBox = $(data[key].container);
-					var inArrayOffset = getOffset(inArrayBox, data[key]);
-
-
-
-
-					/* Выполняет callback on для каждого элемента при соотвествующем оффсете */
-					if(offsetTop > inArrayOffset && triggersArray[key] == true){
-						triggersArray[key] = false;
-						if(data[key].on instanceof Function){
-							data[key].on(inArrayBox, inArrayOffset);
-						}
-					}
-
-
-					/* Выполняет callback off для каждого элемента при соотвествующем оффсете */					
-					else if(offsetTop < inArrayOffset && triggersArray[key] == false) {
-						triggersArray[key] = true;
-						if(data[key].off instanceof Function){
-							data[key].off(inArrayBox, inArrayOffset);
-						}
-					}
-
-
-
-				}
-
-
-
-			}
-
-			else {
-
-
-
-				/* Выполняет callback on */
-				if(offsetTop > offset && trigger == true){
-					trigger = false;
-					if(data.on instanceof Function){
-						data.on(box,offset);
-					}
-				}
-
-
-
-				/* Выполняет callback off */
-				else if(offsetTop < offset && trigger == false) {
-					trigger = true;
-					if(data.off instanceof Function){
-						data.off(box,offset);
-					}
-				}
-
-
-
-			}
-
-
-
-		});
-
-
-
-
-		/* ############## */
-		/* Add properites */
-		/* ############## */
-
-
-		if(isArray == true) {
-
-
-			box = [];
-
-
-			for(key in data){
-				box.push({
-					container: $(data[key].container),
-					offset: data[key].offset,
-					on: function(){
-						data[key].on();
-					},
-					off: function(){
-						data[key].off();
-					}
-				});
-			}
-
-
-
-		}
-		else {
-
-
-			box.callback = {};
-
-
-
-			/* On callback property */
-			if(data.on instanceof Function){
-				box.callback.on = function(box, offset){
-					data.on(box,offset);
-				} 
-			}
-
-
-
-			/* Off callback property */
-			if(data.off instanceof Function){
-				box.callback.off = function(box, offset){
-					data.off(box,offset);
-				} 
-			}
-
-
-		}
-
-
-
-		return box;
-
-
-
-	}
+  }
 
 
 })(jQuery);
