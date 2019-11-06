@@ -1,3 +1,5 @@
+![Logo](http://dimko.org/images/scrolltrigger-logo.png)
+
 # scrollTrigger
 
 Simple and easy to use jQuery plugin to observe document scroll. It executes two callbacks: first when document reach defined offset and second when document scrolled back.
