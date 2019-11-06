@@ -7,7 +7,7 @@ Simple and easy to use jQuery plugin to observe document scroll. It executes two
 
 ### Basic
 
-Based on offset of the element in DOM.
+Based on offset of the element in DOM. (See <a href="http://www.dimko.org/scrolltrigger/demo/basic/">demo</a>).
 
 ``` js
 $('.somediv').scrollTrigger({
@@ -21,14 +21,9 @@ $('.somediv').scrollTrigger({
 });
 ```
 
-
-<a href="http://www.dimko.org/scrolltrigger/demo/basic/">Example</a>
-
-
-
 ### Static offset
 
-Based on pre-defined static offset.
+Based on pre-defined static offset. (See <a href="http://www.dimko.org/scrolltrigger/demo/static/">demo</a>).
 
 ``` js
 $.fn.scrollTrigger({
@@ -42,12 +37,9 @@ $.fn.scrollTrigger({
 });
 ```
 
-<a href="http://www.dimko.org/scrolltrigger/demo/static/">Example</a>
-
-
 ### Dynamic offset
 
-Use function to calculate offset.
+Use function to calculate offset. (See <a href="http://www.dimko.org/scrolltrigger/demo/dynamic/">demo</a>).
 
 ``` js
 $.fn.scrollTrigger({
@@ -62,9 +54,6 @@ $.fn.scrollTrigger({
   }
 });
 ```
-
-<a href="http://www.dimko.org/scrolltrigger/demo/dynamic/">Example</a>
-
 
 ### Handle instance
 
@@ -114,3 +103,8 @@ instance.off(false);
 - `gap` - gap between defined offset and current document offset.
 - `once` - callbacks will be executed once.
 - `customEvents` - adds events which scrollTrigger should react (By default: ready, touchmove, scroll).
+
+
+## Demo
+
+All demos could be found <a href="http://www.dimko.org/scrolltrigger/demo/">here</a>.
