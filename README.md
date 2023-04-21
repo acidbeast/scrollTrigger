@@ -9,7 +9,7 @@ Simple and easy to use jQuery plugin to observe document scroll. It executes two
 
 ### Basic
 
-Based on offset of the element in DOM. (See <a href="http://www.dimko.org/scrolltrigger/demo/basic/">demo</a>).
+Based on offset of the element in DOM. (See <a href="http://www.dimko.org/js/scrolltrigger/demo/basic/">demo</a>).
 
 ``` js
 $('.somediv').scrollTrigger({
@@ -25,7 +25,7 @@ $('.somediv').scrollTrigger({
 
 ### Static offset
 
-Based on pre-defined static offset. (See <a href="http://www.dimko.org/scrolltrigger/demo/static/">demo</a>).
+Based on pre-defined static offset. (See <a href="http://www.dimko.org/js/scrolltrigger/demo/static/">demo</a>).
 
 ``` js
 $.fn.scrollTrigger({
@@ -41,7 +41,7 @@ $.fn.scrollTrigger({
 
 ### Dynamic offset
 
-Use function to calculate offset. (See <a href="http://www.dimko.org/scrolltrigger/demo/dynamic/">demo</a>).
+Use function to calculate offset. (See <a href="http://www.dimko.org/js/scrolltrigger/demo/dynamic/">demo</a>).
 
 ``` js
 $.fn.scrollTrigger({
@@ -109,4 +109,4 @@ instance.off(false);
 
 ## Demo
 
-All demos could be found <a href="http://www.dimko.org/scrolltrigger/demo/">here</a>.
+All demos could be found <a href="http://www.dimko.org/js/scrolltrigger/demo/">here</a>.
